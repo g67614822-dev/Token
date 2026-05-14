@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blue Lock Rewards</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+body {
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+  color: #fff; min-height: 100vh; overflow-x: hidden;
+}
+.container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+header {
+  background: linear-gradient(90deg, #001f3f, #ff0000);
+  padding: 20px; border-radius: 15px; margin-bottom: 30px;
+  box-shadow: 0 10px 30px rgba(255, 0, 0, 0.3);
+  animation: slideDown 0.5s ease;
+}
+@keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+h1 { text-align: center; font-size: 2.5em; text-shadow: 0 0 20px #0080ff; }
+.auth-box,.content-box {
+  background: rgba(20, 25, 50, 0.8); backdrop-filter: blur(10px);
+  padding: 30px; border-radius: 20px; border: 2px solid #0080ff;
+  box-shadow: 0 0 40px rgba(0, 128, 255, 0.3);
+  animation: fadeIn 0.6s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+input, select, textarea {
+  width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #0080ff;
+  background: rgba(0, 0, 0, 0.5); color: #fff; border-radius: 10px;
+  transition: all 0.3s;
+}
+input:focus { outline: none; border-color: #ff0000; box-shadow: 0 0 15px #ff0000; }
+button {
+  background: linear-gradient(90deg, #0080ff, #ff0000); border: none;
+  padding: 12px 30px; color: #fff; font-weight: bold; border-radius: 10px;
+  cursor: pointer; transition: all 0.3s; margin: 5px;
+}
+button:hover { transform: scale(1.05); box-shadow: 0 0 20px #ff0000; }
+nav { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+nav button { flex: 1; min-width: 150px; }
+.menu-content { display: none; animation: fadeIn 0.4s ease; }
+.menu-content.active { display: block; }
+.card {
+  background: rgba(0, 30, 60, 0.6); padding: 20px; margin: 15px 0;
+  border-radius: 15px; border-left: 4px solid #ff0000;
+  transition: all 0.3s;
+}
+.card:hover { transform: translateX(10px); box-shadow: 0 5px 20px rgba(255, 0, 0, 0.4); }
+.toast {
+  position: fixed; top: 20px; right: 20px; padding: 15px 25px;
+  background: linear-gradient(90deg, #0080ff, #00ff80); border-radius: 10px;
+  animation: slideIn 0.3s ease; z-index: 1000;
+}
+@keyframes slideIn { from { transform: translateX(400px); } to { transform: translateX(0); } }
+.token-display { font-size: 2em; color: #00ff80; text-shadow: 0 0 10px #00ff80; }
+.badge { background: #ff0000; padding: 5px 10px; border-radius: 20px; font-size: 0.8em; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1><i class="fas fa-futbol"></i> BLUE LOCK REWARDS</h1>
+    <div id="userInfo" style="text-align: center; margin-top: 10px;"></div>
+  </header>
+
+  <div id="authSection" class="auth-box">
+    <h2><i class="fas fa-lock"></i> Connexion / Inscription</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Mot de passe">
+    <button onclick="login()"><i class="fas fa-sign-in-alt"></i> Se connecter</button>
+    <button onclick="register()"><i class="fas fa-user-plus"></i> Créer compte</button>
+  </div>
+
+  <div id="mainSection" style="display: none;">
+    <nav>
+      <button onclick="showMenu('accueil')"><i class="fas fa-home"></i> Accueil</button>
+      <button onclick="showMenu('defi')"><i class="fas fa-trophy"></i> Défi Quotidien</button>
+      <button onclick="showMenu('echange')"><i class="fas fa-exchange-alt"></i> Échange</button>
+      <button onclick="showMenu('historique')"><i class="fas fa-history"></i> Historique</button>
+      <button onclick="showMenu('vente')"><i class="fas fa-shopping-cart"></i> Acheter Jetons</button>
+    </nav>
+
+    <div id="accueil" class="menu-content active">
+      <h2><i class="fas fa-newspaper"></i> Blog des Nouvelles</h2>
+      <div id="blogList"></div>
+    </div>
+
+    <div id="defi" class="menu-content">
+      <div class="card">
+        <h2><i class="fas fa-gift"></i> Défi Quotidien</h2>
+        <p>Réclame 20 jetons chaque jour gratuitement!</p>
+        <button onclick="claimDaily()"><i class="fas fa-coins"></i> Claim 20 Jetons</button>
+        <p class="token-display">Tes jetons: <span id="tokenCount">0</span></p>
+      </div>
+    </div>
+
+    <div id="echange" class="menu-content">
+      <h2><i class="fas fa-exchange-alt"></i> Échange de Jetons</h2>
+      <div class="card">
+        <img id="ffLogo" src="ff.jpg" style="width: 80px; vertical-align: middle;">
+        <h3>200 Jetons = 110 <i class="fas fa-gem"></i> Free Fire</h3>
+        <input type="text" id="ffUid" placeholder="Ton UID Free Fire">
+        <input type="text" id="ffPseudo" placeholder="Ton Pseudo">
+        <button onclick="exchange('ff')"><i class="fas fa-check"></i> Confirmer</button>
+      </div>
+      <div class="card">
+        <img id="pubgLogo" src="pubg.jpg" style="width: 80px; vertical-align: middle;">
+        <h3>200 Jetons = 60 UC PUBG</h3>
+        <input type="text" id="pubgUid" placeholder="Ton UID PUBG">
+        <input type="text" id="pubgPseudo" placeholder="Ton Pseudo">
+        <button onclick="exchange('pubg')"><i class="fas fa-check"></i> Confirmer</button>
+      </div>
+    </div>
+
+    <div id="historique" class="menu-content">
+      <h2><i class="fas fa-history"></i> Historique d'Échange</h2>
+      <div id="historyList"></div>
+    </div>
+
+    <div id="vente" class="menu-content">
+      <div class="card">
+        <h2><i class="fas fa-shopping-cart"></i> Acheter des Jetons</h2>
+        <p id="priceInfo">50 Jetons = 1200 Ar</p>
+        <p>Envoyer 1200 Ar au <strong>+261 34 78 71 139</strong></p>
+        <p>Nom: <strong>Josiane</strong></p>
+        <input type="text" id="transactionMsg" placeholder="Message de transaction">
+        <button onclick="purchase()"><i class="fas fa-paper-plane"></i> Commander</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:3000/api';
+let token = localStorage.getItem('token');
+let settings = {};
+
+async function init() {
+  if (token) {
+    document.getElementById('authSection').style.display = 'none';
+    document.getElementById('mainSection').style.display = 'block';
+    await loadUser();
+    await loadBlogs();
+    await loadSettings();
+  }
+}
+
+async function loadSettings() {
+  const res = await fetch(`${API}/settings`);
+  settings = await res.json();
+  document.getElementById('priceInfo').textContent = `${settings.tokenPrice.amount} Jetons = ${settings.tokenPrice.price}${settings.tokenPrice.currency}`;
+}
+
+async function loadUser() {
+  const res = await fetch(`${API}/me`, { headers: { Authorization: token } });
+  const user = await res.json();
+  document.getElementById('tokenCount').textContent = user.tokens;
+  document.getElementById('userInfo').innerHTML = `<span class="badge">${user.role}</span> ${user.email} | Jetons: <strong>${user.tokens}</strong>`;
+}
+
+async function login() {
+  const res = await fetch(`${API}/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email.value, password: password.value })
+  });
+  const data = await res.json();
+  if (data.token) {
+    token = data.token;
+    localStorage.setItem('token', token);
+    showToast('Connexion réussie!', 'success');
+    init();
+  } else showToast(data.error, 'error');
+}
+
+async function register() {
+  const res = await fetch(`${API}/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email.value, password: password.value })
+  });
+  const data = await res.json();
+  if (data.token) {
+    token = data.token;
+    localStorage.setItem('token', token);
+    showToast('Compte créé!', 'success');
+    init();
+  } else showToast(data.error, 'error');
+}
+
+async function claimDaily() {
+  const res = await fetch(`${API}/claim-daily`, { method: 'POST', headers: { Authorization: token } });
+  const data = await res.json();
+  showToast(data.message || data.error);
+  loadUser();
+}
+
+async function exchange(type) {
+  const uid = document.getElementById(type + 'Uid').value;
+  const pseudo = document.getElementById(type + 'Pseudo').value;
+  const res = await fetch(`${API}/exchange`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: token },
+    body: JSON.stringify({ type, uid, pseudo })
+  });
+  const data = await res.json();
+  showToast(data.message || data.error);
+  loadUser();
+}
+
+async function purchase() {
+  const res = await fetch(`${API}/purchase`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: token },
+    body: JSON.stringify({ amount: settings.tokenPrice.amount, transactionMsg: transactionMsg.value, method: 'Airtel Money' })
+  });
+  const data = await res.json();
+  showToast(data.message);
+}
+
+async function loadBlogs() {
+  const res = await fetch(`${API}/blogs`);
+  const blogs = await res.json();
+  blogList.innerHTML = blogs.map(b => `
+    <div class="card">
+      <img src="${b.image}" style="width: 100%; border-radius: 10px;">
+      <h3>${b.title}</h3>
+      <p>${b.description}</p>
+      <a href="${b.link}" target="_blank"><button><i class="fas fa-external-link-alt"></i> Lire</button></a>
+    </div>
+  `).join('');
+}
+
+function showMenu(menu) {
+  document.querySelectorAll('.menu-content').forEach(m => m.classList.remove('active'));
+  document.getElementById(menu).classList.add('active');
+}
+
+function showToast(msg, type='success') {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+init();
+</script>
+</body>
+  </html>
