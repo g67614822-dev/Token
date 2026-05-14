@@ -1,0 +1,17 @@
+{
+  "name": "blue-lock-rewards",
+  "version": "1.0.0",
+  "description": "Site de récompenses style Blue Lock",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "lowdb": "^7.0.1",
+    "pdfkit": "^0.14.0"
+  }
+}
